@@ -59,8 +59,20 @@ combined_pct_change = combined_pct_change.loc["2023-08-01":]
 
 # ---------- KPI CALC ----------
 def compute_kpis(wide: pd.DataFrame):
-    latest_date = wide.dropna(how="all").index.max()
-    latest_row = wide.loc[latest_date]
+    # Columns required for KPIs
+    kpi_cols = [
+        "CPI: Medical Care Services_percent_change",
+        "Average Hourly Earnings (Health Care)_percent_change",
+        "Average Hourly Earnings (Private Sector)_percent_change",
+        "All Employees: Health Care and Social Assistance (Thousands)_percent_change",
+        "CPI: Medical Care_percent_change",
+        "CPI: All Items_percent_change",
+    ]
+
+    # Keep only rows where all KPI columns are non-null
+    valid = wide[kpi_cols].dropna(how="any")
+    latest_date = valid.index.max()
+    latest_row = valid.loc[latest_date]
     k = {"date": latest_date}
     k["med_services_mom"] = latest_row["CPI: Medical Care Services_percent_change"]
     k["hc_wage_mom"] = latest_row["Average Hourly Earnings (Health Care)_percent_change"]
@@ -69,8 +81,8 @@ def compute_kpis(wide: pd.DataFrame):
     med_cpi = latest_row["CPI: Medical Care_percent_change"]
     all_cpi = latest_row["CPI: All Items_percent_change"]
     k["spread"] = med_cpi - all_cpi
-    return k
 
+    return k
 
 kpis = compute_kpis(combined_pct_change)
 
