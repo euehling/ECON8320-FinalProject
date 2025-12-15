@@ -129,15 +129,16 @@ with c5:
 st.markdown("---")
 with c6:
     st.metric(
-        f"Total Nonfarm Employment – {latest_date_str}",
+        "Total Nonfarm Employment",
         f"{kpis['nonfarm_level']:,.0f}K"
     )
 
 with c7:
     st.metric(
-        f"Unemployment Rate – {latest_date_str}",
+        "Unemployment Rate",
         f"{kpis['unemp_rate']:.1f}%"
     )
+
 
 
 def show_fig(fig):
