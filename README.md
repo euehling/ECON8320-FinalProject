@@ -99,6 +99,9 @@ matplotlib
 statsmodels
 requests
 
+Published Dashboard:
+https://econ8320-finalproject-jbf72tlr94s5ggk36cotcf.streamlit.app/
+
 Summary of Findings:
 Healthcare wages do not significantly predict medical inflation
 Private-sector wages are a significant predictor
