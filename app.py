@@ -58,7 +58,7 @@ combined_pct_change = combined_pct_change.loc["2023-08-01":]
 
 
 # ---------- KPI CALC ----------
-def compute_kpis(wide: pd.DataFrame):
+def compute_kpis(wide: pd.DataFrame, long: pd.DataFrame):
     # Columns required for KPIs
     kpi_cols = [
         "CPI: Medical Care Services_percent_change",
@@ -82,9 +82,23 @@ def compute_kpis(wide: pd.DataFrame):
     all_cpi = latest_row["CPI: All Items_percent_change"]
     k["spread"] = med_cpi - all_cpi
 
+    k["nonfarm_level"] = (
+        long[long["series_id"] == "CES0000000001"]
+        .dropna(subset=["value"])
+        .sort_values("date")
+        .iloc[-1]["value"]
+    )
+
+    k["unemp_rate"] = (
+        long[long["series_id"] == "LNS14000000"]
+        .dropna(subset=["value"])
+        .sort_values("date")
+        .iloc[-1]["value"]
+    )
+
     return k
 
-kpis = compute_kpis(combined_pct_change)
+kpis = compute_kpis(combined_pct_change, df_long)
 
 # ---------- UI: TITLE & KPIs ----------
 st.title("The Cost of Healthcare: Labor Markets and Medical Inflation")
@@ -101,7 +115,7 @@ def fmt_pct(x):
 
 latest_date_str = kpis["date"].strftime("%B %Y")
 
-c1, c2, c3, c4, c5 = st.columns(5)
+c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 with c1:
     st.metric(f"Medical Care Services CPI (MoM) – {latest_date_str}", fmt_pct(kpis["med_services_mom"]))
 with c2:
@@ -113,6 +127,17 @@ with c4:
 with c5:
     st.metric("Medical – General CPI Spread (MoM)", fmt_pct(kpis["spread"]))
 st.markdown("---")
+with c6:
+    st.metric(
+        f"Total Nonfarm Employment – {latest_date_str}",
+        f"{kpis['nonfarm_level']:,.0f}K"
+    )
+
+with c7:
+    st.metric(
+        f"Unemployment Rate – {latest_date_str}",
+        f"{kpis['unemp_rate']:.1f}%"
+    )
 
 
 def show_fig(fig):
